@@ -16,12 +16,20 @@ const query = gql`
   }
 `;
 
-const RestaurantList = () => {
+const RestaurantList = (props) => {
   const { loading, error, data } = useQuery(query);
+
+  if (error) return "レストランの読み込みに失敗しました。";
+
+  if (loading) return <h1>読み込み中...</h1>;
+
   if (data) {
+    const seachQuery = data.restaurants.filter((restaurant) =>
+      restaurant.name.toLowerCase().includes(props.search)
+    );
     return (
       <Row>
-        {data.restaurants.map((res) => (
+        {seachQuery.map((res) => (
           <Col xs="6" sm="4" key={res.id}>
             <Card style={{ margin: "0. 0.5rem 20px 0.5rem" }}>
               <CardImg
@@ -35,8 +43,8 @@ const RestaurantList = () => {
               </CardBody>
               <div className="card-footer">
                 <Link
-                  href={`/restaurants/${res.id}`}
-                  as={`/restaurants?id=${res.id}`}
+                  as={`/restaurants/${res.id}`}
+                  href={`/restaurants?id=${res.id}`}
                 >
                   <a className="btn btn-primary">もっと見る</a>
                 </Link>
