@@ -72,11 +72,47 @@ class MyApp extends App {
     }
   };
 
+  //カートから商品を削除
+  removeItem = (item) => {
+    let { items } = this.state.cart; //現在のカート状態。
+    const newItem = items.find((i) => i.id === item.id);
+    if (newItem.quantity > 1) {
+      this.setState(
+        {
+          cart: {
+            items: this.state.cart.items.map((item) =>
+              item.id === newItem.id
+                ? Object.assign({}, item, { quantity: item.quantity - 1 })
+                : item
+            ),
+            total: this.state.cart.total - item.price,
+          },
+        },
+        () => Cookies.set("cart", this.state.items)
+      );
+    } else {
+      //注文数が1のときは注文を削除する。
+      const items = [...this.state.cart.items];
+      const index = items.findIndex((i) => i.id === newItem.id); //idが一致したindex番号を返す。
+      items.splice(index, 1); //それを削除する。
+      this.setState(
+        { cart: { items: items, total: this.state.cart.total - item.price } },
+        () => Cookies.set("cart", this.state.items)
+      );
+    }
+  };
+
   render() {
     const { Component, pageProps } = this.props;
     return (
       <AppContext.Provider
-        value={{ user: this.state.user, setUser: this.setUser }}
+        value={{
+          user: this.state.user,
+          cart: this.state.cart,
+          setUser: this.setUser,
+          addItem: this.addItem,
+          removeItem: this.removeItem,
+        }}
       >
         <>
           <Head>
