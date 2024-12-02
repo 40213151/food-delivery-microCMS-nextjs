@@ -18,7 +18,23 @@ class MyApp extends App {
 
   // すでにユーザーのクッキー情報が残っているかをチェックする。
   componentDidMount() {
-    const token = Cookies.get("token"); // tokenの中にjwtが入っている
+    const token = Cookies.get("token");
+    const cart = Cookies.get("cart");
+
+    console.log(cart);
+
+    if (cart !== "undefined" && typeof cart === "string") {
+      //JSON形式で書かれた文字列をJavaScriptのJSONオブジェクトに変換するメソッド.
+      //変換したものはJsonデータとして自由に扱える。
+      JSON.parse(cart).forEach((item) => {
+        this.setState({
+          cart: {
+            items: JSON.parse(cart),
+            total: (this.state.cart.total += item.price * item.quantity),
+          },
+        });
+      });
+    }
 
     if (token) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
